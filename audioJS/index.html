@@ -1,0 +1,53 @@
+<!-- audio有几个属性，可以看看：
+onabort	当发生中止事件时运行脚本
+oncanplay	当媒介能够开始播放但可能因缓冲而需要停止时运行脚本
+oncanplaythrough当媒介能够无需因缓冲而停止即可播放至结尾时运行脚本
+ondurationchange当媒介长度改变时运行脚本
+onemptied	当媒介资源元素突然为空时（网络错误、加载错误等）运行脚本
+onended	当媒介已抵达结尾时运行脚本
+onerror	当在元素加载期间发生错误时运行脚本
+onloadeddata	当加载媒介数据时运行脚本
+onloadedmetadata当媒介元素的持续时间以及其他媒介数据已加载时运行脚本
+onloadstart	当浏览器开始加载媒介数据时运行脚本
+onpause	当媒介数据暂停时运行脚本
+onplay	当媒介数据将要开始播放时运行脚本
+onplaying	当媒介数据已开始播放时运行脚本
+onprogress	当浏览器正在取媒介数据时运行脚本
+onratechange	当媒介数据的播放速率改变时运行脚本
+onreadystatechange	当就绪状态（ready-state）改变时运行脚本
+onseeked	当媒介元素的定位属性 [1] 不再为真且定位已结束时运行脚本
+onseeking	当媒介元素的定位属性为真且定位已开始时运行脚本
+onstalled	当取回媒介数据过程中（延迟）存在错误时运行脚本
+onsuspend	当浏览器已在取媒介数据但在取回整个媒介文件之前停止时运行脚本
+ontimeupdate	当媒介改变其播放位置时运行脚本
+onvolumechange	当媒介改变音量亦或当音量被设置为静音时运行脚本
+onwaiting	当媒介已停止播放但打算继续播放时运行脚本
+ -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="description" content="HTML5 Audio Spectrum Visualizer">
+        <meta name="viewport" content="width=device-width,inital-scale=1.0,maximum-scale=1.0,user-scalable=no,minimal-ui;">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="">
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="full-screen" content="yes">
+<meta name="x5-fullscreen" content="true">
+<meta name="format-detection" content="telephone=no">
+        <title>audioJS</title>
+    </head>
+<body>
+<script src="./js/audio5.js"></script>
+<script>
+  function initAudio () {
+    var audio5js = new Audio5js({
+      ready: function () {
+        this.load('./aaa.mp3');
+        this.play();
+      }
+    });
+  }
+  initAudio();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+btoa、atob转解码：
+	var str = 'javascript';
+	window.btoa(str)
+	//转码结果 "amF2YXNjcmlwdA=="
+	window.atob("amF2YXNjcmlwdA==")
+	//解码结果 "javascript"
+
+对于转码来说，Base64转码的对象只能是字符串，因此来说，对于其他数据还有这一定的局限性
+
+很明显，这种方式是不行的，那么如何让他支持汉字呢，这就要使用window.encodeURIComponent和window.decodeURIComponent
+	var str = "China，中国";
+	window.btoa(window.encodeURIComponent(str))
+	//"Q2hpbmElRUYlQkMlOEMlRTQlQjglQUQlRTUlOUIlQkQ="
+	window.decodeURIComponent(window.atob('Q2hpbmElRUYlQkMlOEMlRTQlQjglQUQlRTUlOUIlQkQ='))
+	//"China，中国"

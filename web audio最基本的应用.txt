@@ -1,0 +1,96 @@
+Web Audio介绍:
+Web Audio还是一个比较新的JavaScript API，它和HTML5中的&lt;audio&gt;是不同的，简单来说，&lt;audio&gt;标签是为了能在网页中嵌入音频文件，和播放器一样，具有操作界面，而Web Audio则是给了开发者对音频数据进行处理、分析的能力，例如混音、过滤等，类似于对音频数据进行PS。
+
+一般的网站应用应该是用不倒这些API中的，但是一些游戏引擎或者在线音乐编辑等类型的网站应该用得到。
+
+Web Audio API紧紧围绕着一个概念设计：audio context，它就像是一个有向图，途中的每个节点都是一个audio node，音频数据从源节点按照程序中指定的边一步一步的走的目的节点。
+如果你接触过directshow开发，audio context就像filter manager，而audio node则是各种filter，当然，如果你是个linux开发者，这有看起来像是pipe。一个audio context中的audio node可以有很多，上面的是最简单的形式了。而audio node又包括四种，
+1. 源节点（source node）
+2. 处理节点（gain node、panner node、wave shaper node、oscillator node、delay node、convolver node等）
+4. 目的节点（destination node）
+
+# Development #
+
+#### 初始化audio context ####
+
+现在只有firefox和webkit系的浏览器（chrome、safari、opera）都支持web audio api，不过和其他新标准一样，每家浏览器还是使用了特定的前缀，所以在调用API时，要考虑一下这个问题。
+
+
+window.AudioContext = (window.AudioContext || window.webkitAudioContext);
+if(window.AudioContext) {
+    var context = new window.AudioContext();
+} else {
+    console.log('not support web audio api');
+}
+一个audio context对象可以支持多个节点，包括source和destination节点，每个新创建的audio context都有一个默认的目的节点，通常代表当前机器上的默认音频输出设备，可以通过context.destination来获取。
+
+#### 创建audio node ####
+
+// create source node
+var source = context.createBufferSource();
+// create gain node
+var gain = context.createGain();
+#### audio node之间的链接、断开操作 ####
+ 
+// connect source to gain
+source.connect(gain);
+// connect gain to node
+gain.connect(context.destination);
+ 
+// disconnect source from gain
+source.disconect(0);
+// disconnect gain from destination
+gain.disconnect(0);
+　　
+
+#### 播放声音 ####
+
+所谓巧妇难为无米之炊，没有声音再好的API也出不来。那么如何得到音频数据呢？既然成为Web Audio，数据肯定是从web上来。下面就是从服务器端下载音频文件，然后解码播放的代码片段。
+
+var context = createAudioContext();
+ 
+var audioURl = 'http://...'; // 这里替换为音频文件URL
+var xhr = new XMLHttpRequest();
+xhr.open('GET', audioURL, true);
+xhr.responseType = 'arraybuffer'; // XMLHttpRequest 2的新东西
+xhr.onload = function() {
+    // 音频数据在request.response中，而不是request.requestText
+    context.decodeAudioData(request.response, function (buffer) {
+        source = context.createBufferSource();
+        source.buffer = buffer;
+        source.connect(context.destination);
+        source.start(0); // 0是当前audio context中的同步时间
+    }
+}
+xhr.send();
+#### 时间控制 ####
+
+web audio提供了非常精准的时间控制，所有的时间都是以秒来计数的。是的，你没看错，是秒，不过这里的秒在底层都是使用高精度的浮点数存储的，其实际精确度是很高的。在创建的audio context中都有一个同步系统，用来对外提供绝对时间，这个时间可以通过context.currentTime获取。这个绝对时间从0开始，而且一旦新建context，就开始走了。
+
+使用代码source.start(time)中，则要求在绝对时间为time时开始播放，当然，如果这个时间time小于context.currentTime则会立即播放，所以上面代码片段中的source.start(0)，其实就是立即播放的意思，如果要指定在N秒后播放，则要使用source.start(context.currentTime + N)。
+
+source.start还可以指定另外两个参数，一个是音频的开始时间，一个音频的持续时间，例如一个一分钟的视频，你可以使用source.start(10, 20, 30)来指定10秒后播放音频文件20秒到20 + 30秒之间的内容。至于暂停、继续功能，则需要自己手工的记录时间点，web audio自身是不提供这些功能的，另外一点就是，web audio的定时功能是不可取消的，嫁出去的姑娘，泼出去的水啊。
+
+var startOffset = 0; // audio file offset
+var startTime = 0; // web audio absolute time
+ 
+function start() {
+    startTime = context.currentTime;
+    var source = context.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+    source.connect(context.destination);
+    source.start(0, startOffset % buffer.duration);
+}
+ 
+function pause() {
+    source.stop();
+    // 已经播放了多长时间
+    startOffset += context.currentTime - startTime;
+}
+ 
+function resume() {
+    // 和<audio>标签嵌入的音频文件不同，source node是不能重复播放的，所以继续功能其实就是play
+    play();
+}
+到此为止，就是web audio最基本的应用。当然，web audio不止这么简单，使用其他类型的audio node，基本可以完成一个小型的混音室。

@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store,no-siteapp, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<META HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT">
+<meta name="viewport" content="width=device-width,inital-scale=1.0,maximum-scale=1.0,user-scalable=no,minimal-ui;">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="WebAudioAPI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="full-screen" content="yes">
+<meta name="x5-fullscreen" content="true">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon-precomposed" sizes="57x57" href="images/dog/edog_logo_57.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/dog/edog_logo_72.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/dog/edog_logo_114.png">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/dog/edog_logo_144.png">
+<title>WebAudioAPI</title>
+<script type="text/javascript">
+/*
+  http://www.w3.org/TR/webaudio/
+http://blog.csdn.net/renfufei/article/details/21168239
+ http://blog.csdn.net/gf771115/article/details/45643271
+	 http://blog.csdn.net/journey191/article/details/40744015
+		 http://www.iteye.com/news/26489
+ */
+/* function gpsError(error){
+	switch(error.code){
+		case error.TIMEOUT:  
+	        alert('超时');  
+	        break;  
+	    case error.PERMISSION_DENIED:  
+	    	alert('用户拒绝提供地理位置');  
+	        break;  
+	    case error.POSITION_UNAVAILABLE:  
+	    	alert('地理位置不可用');  
+	        break;  
+	}
+}
+function showPosition(position){
+	try{
+		var latLng={
+				lat: position.coords.latitude,//十进制纬度
+				lng: position.coords.longitude,//十进制经度
+				heading: position.coords.heading,//指南针方向，相对于正北方向顺时针方向计算,NaN or null表示没有检测到数据
+				speed: position.coords.speed,//速度（米/秒），如果没有数据则值为null
+		};
+		latLng.speed = Math.round(latLng.speed*3.6*1.07);//km/h
+		alert(JSON.stringify(position.coords.heading));
+	}catch(e){
+	}
+}
+!function(){
+	if (navigator.geolocation){
+		navigator.geolocation.watchPosition(showPosition, gpsError);
+	}else{
+		alert("不支持定位");
+	}
+}(); */
+
+</script>
+</head>
+<body>
+<video autoplay="autoplay" controls="controls" style="width:400px;height:200px;"></video>
+<script>
+	function hasGetUserMedia() {
+	  return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
+	            navigator.mozGetUserMedia || navigator.msGetUserMedia);
+	}
+	var onFailSoHard = function(e) {
+	   console.log('Reeeejected!', e);
+	};
+	if (hasGetUserMedia()) {
+		var id = navigator.getSources();
+		alert(JSON.stringify(id));
+		navigator.webkitGetUserMedia({video:{'optional':[{'sourceId':id}]}, audio: true}, function(localMediaStream) {
+		  var video = document.querySelector('video');
+		  console.log(window.webkitURL.createObjectURL(localMediaStream));
+		  video.src = window.webkitURL.createObjectURL(localMediaStream);
+		  video.onloadedmetadata = function(e) {
+		      alert(e);
+		  };
+		}, onFailSoHard);
+	} else {
+	  alert('getUserMedia() is not supported in your browser');
+	}
+</script>	
+</body>
+</html>						
+
+			

@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store,no-siteapp, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<META HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT">
+<meta name="viewport" content="width=device-width,inital-scale=1.0,maximum-scale=1.0,user-scalable=no,minimal-ui;">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="WebAudioAPI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="full-screen" content="yes">
+<meta name="x5-fullscreen" content="true">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon-precomposed" sizes="57x57" href="images/dog/edog_logo_57.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/dog/edog_logo_72.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/dog/edog_logo_114.png">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/dog/edog_logo_144.png">
+<title>GetUserMedia</title>
+</head>  
+<body>  
+    <input type="button" title="开启摄像头" value="开启摄像头" onclick="getMedia();" /><br />  
+    <video height="120px" autoplay="autoplay"></video><hr />  
+    <input type="button" title="拍照" value="拍照" onclick="getPhoto();" /><br />  
+    <canvas id="canvas1" height="120px" ></canvas><hr />  
+    <input type="button" title="视频" value="视频" onclick="getVedio();" /><br />  
+    <canvas id="canvas2" height="120px"></canvas>  
+  
+    <script type="text/javascript">  
+        var video = document.querySelector('video');  
+        var audio, audioType;  
+  
+        var canvas1 = document.getElementById('canvas1');  
+        var context1 = canvas1.getContext('2d');  
+  
+        var canvas2 = document.getElementById('canvas2');  
+        var context2 = canvas2.getContext('2d');  
+  
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;  
+        window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;  
+  
+        var exArray = []; //存储设备源ID  
+        MediaStreamTrack.getSources(function (sourceInfos) {  
+            for (var i = 0; i != sourceInfos.length; ++i) {  
+                var sourceInfo = sourceInfos[i];  
+                //这里会遍历audio,video，所以要加以区分  
+                if (sourceInfo.kind === 'video') {  
+                    exArray.push(sourceInfo.id);  
+                }  
+            }  
+        });  
+  
+        function getMedia() {  
+            if (navigator.getUserMedia) {  
+                navigator.getUserMedia({  
+                    /* 'video': {  
+                        'optional': [{  
+                            'sourceId': exArray[0] //0为前置摄像头，1为后置  
+                        }]  
+                    },   */
+                    'audio':true  
+                }, successFunc, errorFunc);    //success是获取成功的回调函数  
+            }  
+            else {  
+                alert('Native device media streaming (getUserMedia) not supported in this browser.');  
+            }  
+        }  
+  
+        function successFunc(stream) {  
+            //alert('Succeed to get media!');  
+            if (video.mozSrcObject !== undefined) {  
+                //Firefox中，video.mozSrcObject最初为null，而不是未定义的，我们可以靠这个来检测Firefox的支持  
+                video.mozSrcObject = stream;  
+            }  
+            else {  
+                video.src = window.URL && window.URL.createObjectURL(stream) || stream;  
+            }  
+  
+            //video.play();  
+  
+            // 音频  
+            audio = new Audio();  
+            audioType = getAudioType(audio);  
+            if (audioType) {  
+                audio.src = 'polaroid.' + audioType;  
+                audio.play();  
+            }  
+        } 
+        function onSuccess(stream) {//浏览器捕获声音，相对复杂，需要借助Web Audio API
+
+            //创建一个音频环境对像
+            audioContext = window.AudioContext || window.webkitAudioContext;
+            context = new audioContext();
+
+            //将声音输入这个对像
+            audioInput = context.createMediaStreamSources(stream);
+            
+            //设置音量节点
+            volume = context.createGain();
+            audioInput.connect(volume);
+
+            //创建缓存，用来缓存声音
+            var bufferSize = 2048;
+
+            // 创建声音的缓存节点，createJavaScriptNode方法的
+            // 第二个和第三个参数指的是输入和输出都是双声道。
+            recorder = context.createJavaScriptNode(bufferSize, 2, 2);
+
+            // 录音过程的回调函数，基本上是将左右两声道的声音
+            // 分别放入缓存。
+            recorder.onaudioprocess = function(e){
+                console.log('recording');
+                var left = e.inputBuffer.getChannelData(0);
+                var right = e.inputBuffer.getChannelData(1);
+                // we clone the samples
+                leftchannel.push(new Float32Array(left));
+                rightchannel.push(new Float32Array(right));
+                recordingLength += bufferSize;
+            }
+
+            // 将音量节点连上缓存节点，换言之，音量节点是输入
+            // 和输出的中间环节。
+            volume.connect(recorder);
+
+            // 将缓存节点连上输出的目的地，可以是扩音器，也可以
+            // 是音频文件。
+            recorder.connect(context.destination); 
+
+        }
+        function errorFunc(e) {  
+            alert('Error！'+e);  
+        }  
+  
+          
+        // 将视频帧绘制到Canvas对象上,Canvas每60ms切换帧，形成肉眼视频效果  
+        function drawVideoAtCanvas(video,context) {  
+            window.setInterval(function () {  
+                context.drawImage(video, 0, 0,90,120);  
+            }, 60);  
+        }  
+  
+        //获取音频格式  
+        function getAudioType(element) {  
+            if (element.canPlayType) {  
+                if (element.canPlayType('audio/mp4; codecs="mp4a.40.5"') !== '') {  
+                    return ('aac');  
+                } else if (element.canPlayType('audio/ogg; codecs="vorbis"') !== '') {  
+                    return ("ogg");  
+                }  
+            }  
+            return false;  
+        }  
+  
+        // vedio播放时触发，绘制vedio帧图像到canvas  
+//        video.addEventListener('play', function () {  
+//            drawVideoAtCanvas(video, context2);  
+//        }, false);  
+  
+        //拍照  
+        function getPhoto() {  
+            context1.drawImage(video, 0, 0,90,120); //将video对象内指定的区域捕捉绘制到画布上指定的区域，实现拍照。  
+        }  
+  
+        //视频  
+        function getVedio() {  
+            drawVideoAtCanvas(video, context2);  
+        }  
+  
+    </script>  
+</body>  
+</html>  

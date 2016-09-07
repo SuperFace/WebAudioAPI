@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store,no-siteapp, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<META HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT">
+<meta name="viewport" content="width=device-width,inital-scale=1.0,maximum-scale=1.0,user-scalable=no,minimal-ui;">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="WebAudioAPI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="full-screen" content="yes">
+<meta name="x5-fullscreen" content="true">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon-precomposed" sizes="57x57" href="images/dog/edog_logo_57.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/dog/edog_logo_72.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/dog/edog_logo_114.png">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/dog/edog_logo_144.png">
+<title>WebAudioAPI</title>
+</head>
+<body>
+<h1>获得服务器更新</h1>
+<div id="result"></div>
+<script>
+if(typeof(EventSource)!=="undefined")
+{
+var source=new EventSource("php/event_stream.php");
+source.onmessage=function(event)
+  {
+  document.getElementById("result").innerHTML+=event.data + "<br />";
+  };
+}
+else
+{
+document.getElementById("result").innerHTML="Sorry, your browser does not support server-sent events...";
+}
+</script>	
+</body>
+</html>						
+
+			

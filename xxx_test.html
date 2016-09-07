@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Cache-Control" content="no-cache, no-store,no-siteapp, must-revalidate" />
+		<meta http-equiv="Pragma" content="no-cache" />
+		<meta http-equiv="Expires" content="0" />
+		<META HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT">
+		<meta name="viewport" content="width=device-width,inital-scale=1.0,maximum-scale=1.0,user-scalable=no,minimal-ui;">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-title" content="WebAudioAPI">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="full-screen" content="yes">
+		<meta name="x5-fullscreen" content="true">
+		<meta name="format-detection" content="telephone=no">
+        <title>HTML5 Audio API showcase | Audio visualizer</title>
+        <style type="text/css">
+        	*{
+        		padding:0;
+        		margin:0;
+        	}
+        	#play-box{
+        		position:absolute;
+        		width:200px;
+        		height:30px;
+        		top:50px;
+        		left:50px;
+        		border:1px solid #ddd;
+        	}
+            #play-icon{
+            	position:absolute;
+            	top:0px;
+            	left:0px;
+            	background:#333;
+            	display:inline-block;
+            	width:30px;
+            	height:30px;
+            	cursor:pointer;
+            	color:#fff;
+            	line-height:30px;
+            	text-align:center;
+            	font-size:12px;
+            	border-right:1px solid #000;
+            }
+            #stop-icon{
+            	position:absolute;
+            	top:0px;
+            	left:30px;
+            	width:30px;
+            	height:30px;
+            	line-height:30px;
+            	color:#fff;
+            	font-size:12px;
+            	text-align:center;
+            	background:#333;
+            	border-left:1px solid #888;
+            }
+            #play-icon.active, #stop-icon.active{
+            	background:#ddd;
+            }
+            #progress{
+            	position:absolute;
+            	display:inline-block;
+            	top:0px;
+            	left:60px;
+            	width:140px;
+            	height:30px;
+            	outline-style: none;
+            	background: #888;
+            }
+            #progress-inner{
+            	position:absolute;
+            	display:inline-block;
+            	top:0px;
+            	left:0px;
+            	width:0%;
+            	height:30px;
+            	background:red;
+            }
+        </style>
+    </head>
+    <body>
+    <audio id="audio" src="./mp3/dadire1ddd8888857888.mp3" controls="controls" preload="auto" contextmenu=""></audio>
+    <script type="text/javascript">
+    (function(){
+    	var myVid=document.getElementById("audio");
+    	setTimeout(function(){
+    		console.log(myVid.currentposition);
+    		setTimeout(arguments.callee, 100);
+    	},100);
+    })();
+    </script>
+    </body>
+</html>
